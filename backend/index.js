@@ -17,7 +17,7 @@ const pool = new Pool({
 });
 
 app.get('/api/message', async (req, res) => {
-    res.json({ message: 'Hello from Backend!' });
+    res.json({ message: 'Hello from Backend!!!!' });
 });
 
 app.listen(PORT, () => {
