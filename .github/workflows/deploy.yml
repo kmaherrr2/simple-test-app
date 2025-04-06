@@ -105,4 +105,8 @@ jobs:
 
             echo "Frontend logs:"
             docker logs frontend || true
+            
+            echo "Cleaning up Docker images"
+            docker image prune -f
+            docker image prune -a --filter "until=24h" -f
           EOF
