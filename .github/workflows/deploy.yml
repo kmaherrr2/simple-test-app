@@ -56,19 +56,29 @@ jobs:
             echo "Stopping and removing old containers..."
             docker stop frontend || true && docker rm frontend || true
             docker stop backend || true && docker rm backend || true
-            docker stop db || true && docker rm db || true
+            
+            docker volume inspect db_data >/dev/null 2>&1 || docker volume create db_data
+            
+            if [ ! "$(docker ps -q -f name=db)" ]; then
+              if [ "$(docker ps -aq -f name=db)" ]; then
+                echo "Removing stopped db container..."
+                docker rm db
+              fi
+              
+              echo "Starting PostgreSQL container..."
+              docker run -d --name db \
+                --network app-net \
+                -e POSTGRES_USER=testuser \
+                -e POSTGRES_PASSWORD=testpass \
+                -e POSTGRES_DB=testdb \
+                -v db_data:/var/lib/postgresql/data \
+                postgres:14
+            else
+              echo "Database container already running."
+            fi
 
             echo "Creating Docker network if not exists..."
             docker network inspect app-net >/dev/null 2>&1 || docker network create app-net
-
-            echo "Starting PostgreSQL container..."
-            docker run -d --name db \
-              --network app-net \
-              -e POSTGRES_USER=testuser \
-              -e POSTGRES_PASSWORD=testpass \
-              -e POSTGRES_DB=testdb \
-              -v db_data:/var/lib/postgresql/data \
-              postgres:14
 
             echo "Starting backend container..."
             docker run -d --name backend \
