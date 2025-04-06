@@ -49,14 +49,19 @@ jobs:
       - name: Deploy to server and show logs
         run: |
           ssh root@${{ secrets.SERVER_IP }} << 'EOF'
+            echo "🔄 Pulling latest Docker images..."
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/simple-frontend:latest
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/simple-backend:latest
 
+            echo "🧹 Stopping and removing old containers..."
             docker stop frontend || true && docker rm frontend || true
             docker stop backend || true && docker rm backend || true
             docker stop db || true && docker rm db || true
-            docker network create app-net || true
 
+            echo "🌐 Creating Docker network if not exists..."
+            docker network inspect app-net >/dev/null 2>&1 || docker network create app-net
+
+            echo "🐘 Starting PostgreSQL container..."
             docker run -d --name db \
               --network app-net \
               -e POSTGRES_USER=testuser \
@@ -65,22 +70,29 @@ jobs:
               -v db_data:/var/lib/postgresql/data \
               postgres:14
 
+            echo "Starting backend container..."
             docker run -d --name backend \
               --network app-net \
               -p 5000:5000 \
+              -e DB_USER=testuser \
+              -e DB_PASSWORD=testpass \
+              -e DB_NAME=testdb \
+              -e DB_HOST=db \
+              -e DB_PORT=5432 \
               ${{ secrets.DOCKER_HUB_USERNAME }}/simple-backend:latest
 
+            echo "🎨 Starting frontend container..."
             docker run -d --name frontend \
               --network app-net \
               -p 9000:3000 \
               ${{ secrets.DOCKER_HUB_USERNAME }}/simple-frontend:latest
 
-            echo "Checking container status"
+            echo "Container status:"
             docker ps -a
 
             echo "Backend logs:"
             docker logs backend || true
 
-            echo "rontend logs:"
+            echo "Frontend logs:"
             docker logs frontend || true
           EOF
