@@ -106,7 +106,7 @@ jobs:
             echo "Frontend logs:"
             docker logs frontend || true
             
-            echo "Cleaning up Docker images"
-            docker image prune -f
-            docker image prune -a --filter "until=24h" -f
+            echo "Removing specific images: frontend and backend"
+            docker rmi ${{ secrets.DOCKER_HUB_USERNAME }}/simple-frontend:latest || true
+            docker rmi ${{ secrets.DOCKER_HUB_USERNAME }}/simple-backend:latest || true
           EOF
