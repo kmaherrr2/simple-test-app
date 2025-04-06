@@ -1,4 +1,3 @@
-# docker-compose.yml (Optional)
 version: '3.8'
 services:
   db:
