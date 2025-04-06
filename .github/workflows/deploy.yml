@@ -107,6 +107,7 @@ jobs:
             docker logs frontend || true
             
             echo "Cleaning up Docker images"
+            docker rmi $(docker images ${{ secrets.DOCKER_HUB_USERNAME }}/simple-frontend --format "{{.ID}}" | tail -n +2) 2>/dev/null || true
+            docker rmi $(docker images ${{ secrets.DOCKER_HUB_USERNAME }}/simple-backend --format "{{.ID}}" | tail -n +2) 2>/dev/null || true
             docker image prune -f
-            docker image prune -a -f
           EOF
