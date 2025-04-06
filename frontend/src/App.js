@@ -237,7 +237,7 @@ function App() {
     return (
         <div className="app-container">
             <header className="app-header">
-                <h1>My App</h1>
+                <h1>Kareem's auth app</h1>
                 <p className="server-message">{message}</p>
             </header>
 
