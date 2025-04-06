@@ -107,6 +107,6 @@ jobs:
             docker logs frontend || true
             
             echo "Cleaning up docker images"
-            docker rmi ${{ secrets.DOCKER_HUB_USERNAME }}/simple-frontend:latest || true
-            docker rmi ${{ secrets.DOCKER_HUB_USERNAME }}/simple-backend:latest || true
+            docker rmi -f ${{ secrets.DOCKER_HUB_USERNAME }}/simple-frontend:latest || true
+            docker rmi -f ${{ secrets.DOCKER_HUB_USERNAME }}/simple-backend:latest || true
           EOF
